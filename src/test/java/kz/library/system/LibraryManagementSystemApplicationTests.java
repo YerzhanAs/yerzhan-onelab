@@ -1,4 +1,4 @@
-package kz.library.system.librarymanagementsystem;
+package kz.library.system;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
