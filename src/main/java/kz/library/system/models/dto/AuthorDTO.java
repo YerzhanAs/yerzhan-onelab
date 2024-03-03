@@ -1,7 +1,6 @@
-package kz.library.system.model;
+package kz.library.system.models.dto;
 
-import jakarta.persistence.OneToMany;
-import kz.library.system.domain.entities.Book;
+import kz.library.system.domains.entities.Book;
 import lombok.*;
 
 import java.util.ArrayList;

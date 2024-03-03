@@ -1,7 +1,6 @@
-package kz.library.system.model;
+package kz.library.system.domains.entities;
 
-import kz.library.system.domain.entities.Author;
-import kz.library.system.domain.entities.Publisher;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
@@ -9,8 +8,12 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BookDTO {
+@Entity
+@Table(name= "t_books")
+public class Book {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
@@ -19,13 +22,17 @@ public class BookDTO {
 
     private String language;
 
+    @ManyToOne
+    @JoinColumn(name = "author_id")
     private Author author;
 
+    @ManyToOne
+    @JoinColumn(name = "publisher_id")
     private Publisher publisher;
 
     @Override
     public String toString() {
-        return "BookDTO{" +
+        return "Book{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", isbn='" + isbn + '\'' +

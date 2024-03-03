@@ -1,6 +1,6 @@
-package kz.library.system.domain.entities;
+package kz.library.system.models.dto;
 
-import jakarta.persistence.*;
+import kz.library.system.domains.entities.Book;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -11,23 +11,22 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
-@Table(name= "t_authors")
-public class Author {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String name;
+public class PublisherDTO {
 
-    @OneToMany(mappedBy = "author")
-    @Builder.Default
+    private Long id;
+
+    private String publisherName;
+
+    private int publisherYear;
+
     private List<Book> books = new ArrayList<>();
 
     @Override
     public String toString() {
-        return "Author{" +
+        return "PublisherDTO{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", publisherName='" + publisherName + '\'' +
+                ", publisherYear=" + publisherYear +
                 ", books=" + books +
                 '}';
     }

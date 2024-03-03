@@ -1,5 +1,4 @@
-package kz.library.system.domain.entities;
-
+package kz.library.system.domains.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,27 +12,21 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name= "t_publishers")
-public class Publisher {
-
+@Table(name= "t_authors")
+public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String name;
 
-    private String publisherName;
-
-    private int publisherYear;
-
-    @OneToMany(mappedBy = "publisher")
-    @Builder.Default
+    @OneToMany(mappedBy = "author")
     private List<Book> books = new ArrayList<>();
 
     @Override
     public String toString() {
-        return "Publisher{" +
+        return "Author{" +
                 "id=" + id +
-                ", publisherName='" + publisherName + '\'' +
-                ", publisherYear='" + publisherYear + '\'' +
+                ", name='" + name + '\'' +
                 ", books=" + books +
                 '}';
     }
