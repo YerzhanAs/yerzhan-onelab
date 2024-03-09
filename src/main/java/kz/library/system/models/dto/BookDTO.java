@@ -1,8 +1,12 @@
 package kz.library.system.models.dto;
 
 import kz.library.system.domains.entities.Author;
+import kz.library.system.domains.entities.Genre;
 import kz.library.system.domains.entities.Publisher;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -23,6 +27,8 @@ public class BookDTO {
 
     private Publisher publisher;
 
+    private Set<Genre> genres = new HashSet<>();
+
     @Override
     public String toString() {
         return "BookDTO{" +
@@ -30,8 +36,7 @@ public class BookDTO {
                 ", title='" + title + '\'' +
                 ", isbn='" + isbn + '\'' +
                 ", language='" + language + '\'' +
-                ", author=" + author +
-                ", publisher=" + publisher +
+                ", genres=" + genres +
                 '}';
     }
 }

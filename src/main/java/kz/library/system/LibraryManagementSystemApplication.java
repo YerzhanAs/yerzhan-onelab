@@ -1,18 +1,16 @@
 package kz.library.system;
 
-
-import kz.library.system.domains.entities.Publisher;
 import kz.library.system.models.dto.AuthorDTO;
 import kz.library.system.models.dto.BookDTO;
+import kz.library.system.models.dto.GenreDTO;
 import kz.library.system.models.dto.PublisherDTO;
 import kz.library.system.models.mapper.AuthorMapper;
 import kz.library.system.models.mapper.PublisherMapper;
-import kz.library.system.services.AuthorService;
-import kz.library.system.services.BookService;
-import kz.library.system.services.PublisherService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import kz.library.system.services.impl.AuthorServiceImpl;
+import kz.library.system.services.impl.BookServiceImpl;
+import kz.library.system.services.impl.GenreServiceImpl;
+import kz.library.system.services.impl.PublisherServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,18 +18,20 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.util.List;
 
 @SpringBootApplication
+@Slf4j
 public class LibraryManagementSystemApplication implements CommandLineRunner {
 
-    private static final Logger logger = LoggerFactory.getLogger(LibraryManagementSystemApplication.class);
+    private final BookServiceImpl bookServiceImpl;
+    private final AuthorServiceImpl authorServiceImpl;
+    private final PublisherServiceImpl publisherServiceImpl;
 
-    private final BookService bookService;
-    private final AuthorService authorService;
-    private final PublisherService publisherService;
+    private final GenreServiceImpl genreServiceImpl;
 
-    public LibraryManagementSystemApplication(BookService bookService, AuthorService authorService, PublisherService publisherService) {
-        this.bookService = bookService;
-        this.authorService = authorService;
-        this.publisherService = publisherService;
+    public LibraryManagementSystemApplication(BookServiceImpl bookServiceImpl, AuthorServiceImpl authorServiceImpl, PublisherServiceImpl publisherServiceImpl, GenreServiceImpl genreServiceImpl) {
+        this.bookServiceImpl = bookServiceImpl;
+        this.authorServiceImpl = authorServiceImpl;
+        this.publisherServiceImpl = publisherServiceImpl;
+        this.genreServiceImpl = genreServiceImpl;
     }
 
     public static void main(String[] args) {
@@ -41,41 +41,66 @@ public class LibraryManagementSystemApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        AuthorDTO author1 = AuthorDTO.builder().name("Tolkin").build();
-        AuthorDTO author2 = AuthorDTO.builder().name("Yerzhan").build();
+        GenreDTO genre1 = GenreDTO.builder()
+                .genreName("Fantasy")
+                .description("Books about Fantasy")
+                .build();
 
-        authorService.saveAuthor(author1);
-        authorService.saveAuthor(author2);
+        GenreDTO genre2 = GenreDTO.builder()
+                .genreName("Science")
+                .description("Books about Science")
+                .build();
 
-        logger.info("Save authors");
+        genreServiceImpl.saveGenre(genre1);
+        genreServiceImpl.saveGenre(genre2);
 
-        PublisherDTO publisher1 = PublisherDTO.builder().publisherName("Moskva").publisherYear(2017).build();
-        PublisherDTO publisher2 = PublisherDTO.builder().publisherName("Almaty").publisherYear(2021).build();
 
-        publisherService.savePublisher(publisher1);
-        publisherService.savePublisher(publisher2);
+        AuthorDTO author1 = AuthorDTO.builder()
+                .name("Tolkin")
+                .build();
+        AuthorDTO author2 = AuthorDTO.builder()
+                .name("Yerzhan")
+                .build();
 
-        logger.info("Save publishers");
+        authorServiceImpl.saveAuthor(author1);
+        authorServiceImpl.saveAuthor(author2);
+        log.info("Save authors");
 
-        List<PublisherDTO> publishers = publisherService.findAllPublishers();
+        PublisherDTO publisher1 = PublisherDTO.builder()
+                .publisherName("Moskva")
+                .publisherYear(2017)
+                .address("Red square 12")
+                .build();
+        PublisherDTO publisher2 = PublisherDTO.builder()
+                .publisherName("Almaty")
+                .publisherYear(2021)
+                .address("Zibek Zholy 40")
+                .build();
 
-        logger.info(" Get Publishers: {}", publishers);
+        publisherServiceImpl.savePublisher(publisher1);
+        publisherServiceImpl.savePublisher(publisher2);
+        log.info("Save publishers");
 
-        List<AuthorDTO> authors = authorService.findAllAuthors();
-        logger.info(" Get Authors: {}", authors);
+        List<PublisherDTO> publishers = publisherServiceImpl.findAllPublishers();
+        log.info(" Get Publishers: {}", publishers);
+
+        List<AuthorDTO> authors = authorServiceImpl.findAllAuthors();
+        log.info(" Get Authors: {}", authors);
+
+        List<GenreDTO> genres = genreServiceImpl.findAllGenres();
+        log.info(" Get Genres: {}", genres);
 
         BookDTO newBook1 = BookDTO.builder()
                 .title("Star wars: last war of emprie")
-                .isbn("955-0-306-40615-7")
+                .isbn("455-3-402-40612-7")
                 .language("Spain")
                 .author(AuthorMapper.dtoToEntity(authors.get(0)))
                 .publisher(PublisherMapper.dtoToEntity(publishers.get(0)))
                 .build();
 
-
         BookDTO newBook2 = BookDTO.builder()
                 .title("The best practice of Java")
-                .isbn("744-0-306-40425-7")
+                .isbn("452-0-306-12215-7")
                 .language("English")
                 .author(AuthorMapper.dtoToEntity(authors.get(1)))
                 .publisher(PublisherMapper.dtoToEntity(publishers.get(1)))
@@ -83,41 +108,44 @@ public class LibraryManagementSystemApplication implements CommandLineRunner {
 
         BookDTO newBook3 = BookDTO.builder()
                 .title("Rich Dad")
-                .isbn("244-0-306-30425-7")
+                .isbn("777-0-406-40615-5")
                 .language("English")
                 .author(AuthorMapper.dtoToEntity(authors.get(0)))
                 .publisher(PublisherMapper.dtoToEntity(publishers.get(0)))
                 .build();
 
-        logger.info("Save books");
-        bookService.saveBook(newBook1);
-        bookService.saveBook(newBook2);
-        bookService.saveBook(newBook3);
+        bookServiceImpl.saveBook(newBook1);
+        bookServiceImpl.saveBook(newBook2);
+        bookServiceImpl.saveBook(newBook3);
+        log.info("Save books");
 
-        logger.info("Find book by id");
-        logger.info("Book: {}", bookService.findBookById(1L));
+        log.info("Find book by id");
+        log.info("Book: {}", bookServiceImpl.findBookById(1L));
 
-        logger.info("All books");
-        logger.info("Books: {}", bookService.findAllBooks());
+        log.info("All books");
+        log.info("Books: {}", bookServiceImpl.findAllBooks());
 
-        logger.info("Search book by isbn and language");
-        BookDTO book2 = bookService.findBookByLanguageAndIsbn(newBook1.getLanguage(), newBook1.getIsbn());
-        logger.info("Found book: {}", book2);
+        log.info("Delete book by id: 1 ");
+        bookServiceImpl.deleteBookById(1L);
 
-        logger.info("Delete book by id: 1 ");
-        bookService.deleteBookById(1L);
+        log.info("Find book by isbn and language: {}",
+                bookServiceImpl.findBookByIsbnAndLanguage("777-0-406-40615-5", "English"));
 
-        authors.get(0).setId(null);
+        log.info("Find count books by Author: {}", bookServiceImpl.countBooksByAuthor(authors.get(0)));
 
+        log.info("Update Book Genre ");
+        bookServiceImpl.updateBookGenre(2L, genres.get(0));
+
+
+        log.info("Save book with exists isbn");
         BookDTO newBook4 = BookDTO.builder()
                 .title("Rich Dad 2")
-                .isbn("442-0-306-30425-7")
+                .isbn("777-0-406-40615-5")
                 .language("English")
                 .author(AuthorMapper.dtoToEntity(authors.get(0)))
                 .publisher(PublisherMapper.dtoToEntity(publishers.get(0)))
                 .build();
-
-        bookService.saveBook(newBook4);
+        bookServiceImpl.saveBook(newBook4);
 
 
     }

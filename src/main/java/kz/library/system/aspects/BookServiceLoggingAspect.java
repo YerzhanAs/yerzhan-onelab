@@ -13,7 +13,7 @@ public class BookServiceLoggingAspect {
 
     private static final Logger logger = LoggerFactory.getLogger(BookServiceLoggingAspect.class);
 
-    @Around("execution(* kz.library.system.services.BookService.*(..))")
+    @Around("execution(* kz.library.system.services.impl.BookServiceImpl.*(..))")
     public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
 

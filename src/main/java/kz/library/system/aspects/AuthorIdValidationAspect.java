@@ -13,7 +13,7 @@ public class AuthorIdValidationAspect {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthorIdValidationAspect.class);
 
-    @Before("execution(* kz.library.system.services.BookService.saveBook(..)) && args(bookDTO)")
+    @Before("execution(* kz.library.system.services.impl.BookServiceImpl.saveBook(..)) && args(bookDTO)")
     public void validateAuthorId(BookDTO bookDTO) {
         Long authorId = bookDTO.getAuthor().getId();
         if (authorId == null || authorId <= 0) {

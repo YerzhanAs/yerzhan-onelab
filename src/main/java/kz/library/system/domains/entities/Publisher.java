@@ -1,11 +1,10 @@
 package kz.library.system.domains.entities;
 
-
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -20,12 +19,17 @@ public class Publisher {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotEmpty(message = "The publisher name name is required")
     private String publisherName;
 
+    @Column(name = "publisher_year")
     private int publisherYear;
 
+    @Column(name = "address")
+    private String address;
+
     @OneToMany(mappedBy = "publisher")
-    private List<Book> books = new ArrayList<>();
+    private Set<Book> books = new HashSet<>();
 
     @Override
     public String toString() {

@@ -3,8 +3,8 @@ package kz.library.system.models.dto;
 import kz.library.system.domains.entities.Book;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -19,7 +19,9 @@ public class PublisherDTO {
 
     private int publisherYear;
 
-    private List<Book> books = new ArrayList<>();
+    private String address;
+
+    private Set<Book> books = new HashSet<>();
 
     @Override
     public String toString() {
@@ -27,7 +29,6 @@ public class PublisherDTO {
                 "id=" + id +
                 ", publisherName='" + publisherName + '\'' +
                 ", publisherYear=" + publisherYear +
-                ", books=" + books +
                 '}';
     }
 }

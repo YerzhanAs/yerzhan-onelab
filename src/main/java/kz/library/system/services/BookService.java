@@ -1,53 +1,35 @@
 package kz.library.system.services;
 
 import kz.library.system.domains.entities.Book;
-import kz.library.system.domains.repositories.BookRepository;
+import kz.library.system.domains.entities.Genre;
+import kz.library.system.models.dto.AuthorDTO;
 import kz.library.system.models.dto.BookDTO;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import kz.library.system.models.mapper.BookMapper;
+import kz.library.system.models.dto.GenreDTO;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
-import static kz.library.system.models.mapper.BookMapper.dtoToEntity;
-import static kz.library.system.models.mapper.BookMapper.entityToDto;
+public interface BookService {
 
-@Service
-@RequiredArgsConstructor
-public class BookService {
+    List<BookDTO> findAllBooks();
 
-    private final BookRepository bookRepository;
+    BookDTO findBookById(Long id);
 
-    public List<BookDTO> findAllBooks(){
-        return bookRepository.findAll().stream()
-                .map(BookMapper::entityToDto)
-                .collect(Collectors.toList());
-    }
+    void deleteBookById(Long id);
 
+    void saveBook(BookDTO bookDTO);
 
-    public BookDTO findBookById(Long id) {
-        return entityToDto(bookRepository.findById(id));
-    }
+    List<BookDTO> findBookByIsbnAndLanguage(String isbn, String language);
 
-    public void deleteBookById(Long id){
-        bookRepository.deleteById(id);
-    }
+    void updateBook(Long id, BookDTO updatedBookDTO);
 
-    public void saveBook(BookDTO bookDTO){
-        bookRepository.save(dtoToEntity(bookDTO));
-    }
+    List<Book> findBooksByAuthor(AuthorDTO authorDTO);
 
-    public BookDTO findBookByLanguageAndIsbn(String language, String isbn){
-        List<Book> books = bookRepository.findAll();
+    List<Book> findBooksByGenres(String genreName);
 
-        Optional<Book> foundBook = books.stream()
-                .filter(b -> b.getLanguage().equals(language) && b.getIsbn().equals(isbn))
-                .findFirst();
+    Long countBooksByAuthor(AuthorDTO authorDTO);
 
-        return foundBook.map(BookMapper::entityToDto).orElse(null);
-    }
+    void updateBookGenre(Long bookId, GenreDTO newGenre);
+
 
 
 }
