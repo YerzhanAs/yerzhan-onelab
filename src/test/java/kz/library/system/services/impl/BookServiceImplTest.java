@@ -1,13 +1,17 @@
 package kz.library.system.services.impl;
 
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+
 import kz.library.system.domains.entities.Author;
 import kz.library.system.domains.entities.Book;
 import kz.library.system.domains.repositories.BookRepository;
 import kz.library.system.models.dto.AuthorDTO;
 import kz.library.system.models.dto.BookDTO;
 import kz.library.system.models.dto.GenreDTO;
-import kz.library.system.models.mapper.AuthorMapper;
-import kz.library.system.services.impl.BookServiceImpl;
 import kz.library.system.utils.exceptions.BookAlreadyExistsException;
 import kz.library.system.utils.exceptions.NotFoundException;
 import org.junit.jupiter.api.Test;
@@ -16,12 +20,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -35,7 +33,7 @@ public class BookServiceImplTest {
     private BookServiceImpl bookService;
 
     @Test
-    void testFindAllBooks_WhenBooksExist() {
+    void testFindAllBooksWhenBooksExist() {
         List<Book> mockBooks = new ArrayList<>();
         mockBooks.add(Book.builder().build());
         mockBooks.add(Book.builder().build());
@@ -49,7 +47,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    void testFindAllBooks_WhenNoBooksExist() {
+    void testFindAllBooksWhenNoBooksExist() {
         when(bookRepository.findAll()).thenReturn(new ArrayList<>());
 
         assertThrows(NotFoundException.class, () -> {
@@ -58,7 +56,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    void testFindBookById_WhenBookExists() {
+    void testFindBookByIdWhenBookExists() {
         Long id = 1L;
         Book mockBook = Book.builder().build();
         mockBook.setId(id);
@@ -71,7 +69,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    void testFindBookById_WhenBookDoesNotExist() {
+    void testFindBookByIdWhenBookDoesNotExist() {
         Long id = 1L;
         when(bookRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -81,7 +79,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    void testDeleteBookById_WhenBookExists() {
+    void testDeleteBookByIdWhenBookExists() {
         Long id = 1L;
 
         bookService.deleteBookById(id);
@@ -90,7 +88,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    void testDeleteBookById_WhenBookDoesNotExist() {
+    void testDeleteBookByIdWhenBookDoesNotExist() {
         Long id = 1L;
         doThrow(EmptyResultDataAccessException.class).when(bookRepository).deleteById(id);
 

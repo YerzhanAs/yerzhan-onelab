@@ -18,18 +18,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @Slf4j
 public class LibraryManagementSystemApplication implements CommandLineRunner {
 
-    private final BookService bookServiceImpl;
-    private final AuthorService authorServiceImpl;
-    private final PublisherService publisherServiceImpl;
-    private final GenreService genreServiceImpl;
 
     private final BookProducer bookProducer;
 
-    public LibraryManagementSystemApplication(BookService bookServiceImpl, AuthorService authorServiceImpl, PublisherService publisherServiceImpl, GenreService genreServiceImpl, BookProducer bookProducer) {
-        this.bookServiceImpl = bookServiceImpl;
-        this.authorServiceImpl = authorServiceImpl;
-        this.publisherServiceImpl = publisherServiceImpl;
-        this.genreServiceImpl = genreServiceImpl;
+    public LibraryManagementSystemApplication(BookProducer bookProducer) {
         this.bookProducer = bookProducer;
     }
 
@@ -40,6 +32,10 @@ public class LibraryManagementSystemApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
+        // Написал producer который в определенный промежуток времени
+        // будет отправлять новые данные с скалады на consumer.
+        // Consumer будет сохранять полученные данные в БД.
+        // Промежуток времени указал 30 секунд
         bookProducer.sendBooksHourly();
     }
 }
