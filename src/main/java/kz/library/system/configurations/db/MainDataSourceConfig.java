@@ -35,7 +35,7 @@ public class MainDataSourceConfig {
 
     @Primary
     @Bean(name = "mainDataSource")
-    @ConfigurationProperties(prefix = "spring.datasource.h2.hikari")
+    @ConfigurationProperties(prefix = "spring.datasource.hikari")
     public DataSource dataSource(@Qualifier("mainDataSourceProperties") DataSourceProperties dataSourceProperties) {
         return dataSourceProperties.initializeDataSourceBuilder().build();
     }

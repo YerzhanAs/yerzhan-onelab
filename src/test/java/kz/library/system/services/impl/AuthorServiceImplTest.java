@@ -60,7 +60,7 @@ class AuthorServiceImplTest {
 
         AuthorDTO authorDTO = authorService.findAuthorById(authorId);
 
-        assertEquals(author.getId(), authorDTO.getId());
+        assertEquals(1L, authorDTO.getId());
         assertEquals(author.getName(), authorDTO.getName());
     }
 

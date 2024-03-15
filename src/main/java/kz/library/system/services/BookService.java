@@ -18,6 +18,8 @@ public interface BookService {
 
     void saveBook(BookDTO bookDTO);
 
+    void saveAllBook(List<BookDTO> bookDTOList);
+
     List<BookDTO> findBookByIsbnAndLanguage(String isbn, String language);
 
     void updateBook(Long id, BookDTO updatedBookDTO);

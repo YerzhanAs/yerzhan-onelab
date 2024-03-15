@@ -67,7 +67,7 @@ public class BookServiceImplTest {
         BookDTO result = bookService.findBookById(id);
 
         assertNotNull(result);
-        assertEquals(id, result.getId());
+        assertEquals(1L, result.getId());
     }
 
     @Test

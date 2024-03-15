@@ -116,4 +116,15 @@ public class BookServiceImpl implements BookService {
         bookRepository.save(book);
     }
 
+    @Transactional
+    @Override
+    public void saveAllBook(List<BookDTO> bookDTOList){
+        List<Book> books = bookDTOList.stream()
+                .map(BookMapper::dtoToEntity)
+                .collect(Collectors.toList());
+
+        bookRepository.saveAll(books);
+    }
+
+
 }
