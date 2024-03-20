@@ -2,22 +2,15 @@ package kz.library.system.models.mapper;
 
 import kz.library.system.domains.entities.Publisher;
 import kz.library.system.models.dto.PublisherDTO;
+import kz.library.system.models.dto.PublisherCreateDTO;
+import org.mapstruct.Mapper;
 
-public class PublisherMapper {
+@Mapper(componentModel = "spring")
+public interface PublisherMapper {
 
-    public static PublisherDTO entityToDto(Publisher publisher) {
-        return PublisherDTO.builder()
-                .id(publisher.getId())
-                .publisherName(publisher.getPublisherName())
-                .publisherYear(publisher.getPublisherYear())
-                .build();
-    }
+    PublisherDTO toPublisherDTO(Publisher publisher);
 
-    public static Publisher dtoToEntity(PublisherDTO publisherDTO) {
-        return Publisher.builder()
-                .id(publisherDTO.getId())
-                .publisherName(publisherDTO.getPublisherName())
-                .publisherYear(publisherDTO.getPublisherYear())
-                .build();
-    }
+    Publisher toPublisher(PublisherDTO publisherDTO);
+
+    Publisher toPublisher(PublisherCreateDTO publisherCreateDTO);
 }

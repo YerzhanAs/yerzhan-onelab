@@ -2,22 +2,16 @@ package kz.library.system.models.mapper;
 
 import kz.library.system.domains.entities.Genre;
 import kz.library.system.models.dto.GenreDTO;
+import kz.library.system.models.dto.GenreCreateDTO;
+import org.mapstruct.Mapper;
 
-public class GenreMapper {
+@Mapper(componentModel = "spring")
+public interface GenreMapper {
 
-    public static GenreDTO entityToDto(Genre genre){
-        return GenreDTO.builder()
-                .id(genre.getId())
-                .genreName(genre.getGenreName())
-                .description(genre.getDescription())
-                .build();
-    }
+    GenreDTO toGenreDTO(Genre genre);
 
-    public static Genre dtoToEntity(GenreDTO genreDTO){
-        return Genre.builder()
-                .id(genreDTO.getId())
-                .genreName(genreDTO.getGenreName())
-                .description(genreDTO.getDescription())
-                .build();
-    }
+    Genre toGenre(GenreDTO genreDTO);
+
+    Genre toGenre(GenreCreateDTO genreCreateDTO);
+
 }

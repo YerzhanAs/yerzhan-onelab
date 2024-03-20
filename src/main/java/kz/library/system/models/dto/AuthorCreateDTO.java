@@ -1,5 +1,5 @@
 package kz.library.system.models.dto;
-
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Getter
@@ -7,12 +7,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GenreDTO {
+public class AuthorCreateDTO {
 
-    private Long id;
-
-    private String genreName;
-
-    private String description;
-
+    @NotBlank
+    private String name;
 }

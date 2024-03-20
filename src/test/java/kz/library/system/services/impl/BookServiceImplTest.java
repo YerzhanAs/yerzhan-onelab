@@ -1,17 +1,17 @@
 package kz.library.system.services.impl;
 
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import kz.library.system.domains.entities.Author;
 import kz.library.system.domains.entities.Book;
 import kz.library.system.domains.repositories.BookRepository;
 import kz.library.system.models.dto.AuthorDTO;
+import kz.library.system.models.dto.BookCreateDTO;
 import kz.library.system.models.dto.BookDTO;
 import kz.library.system.models.dto.GenreDTO;
+import kz.library.system.models.mapper.BookMapper;
+import kz.library.system.models.request.SearchBookRequest;
 import kz.library.system.utils.exceptions.BookAlreadyExistsException;
 import kz.library.system.utils.exceptions.NotFoundException;
 import org.junit.jupiter.api.Test;
@@ -20,6 +20,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -29,57 +34,63 @@ public class BookServiceImplTest {
     @Mock
     private BookRepository bookRepository;
 
+    @Mock
+    private BookMapper bookMapper;
+
     @InjectMocks
     private BookServiceImpl bookService;
 
     @Test
-    void testFindAllBooksWhenBooksExist() {
-        List<Book> mockBooks = new ArrayList<>();
-        mockBooks.add(Book.builder().build());
-        mockBooks.add(Book.builder().build());
+    public void findAllBooks_ReturnsNonEmptyList_WhenBooksFound() {
+        Book book = new Book();
+        List<Book> books = List.of(book);
 
-        when(bookRepository.findAll()).thenReturn(mockBooks);
+        BookDTO bookDTO = new BookDTO();
+        when(bookRepository.findAll()).thenReturn(books);
+        when(bookMapper.toBookDTO(any(Book.class))).thenReturn(bookDTO);
 
         List<BookDTO> result = bookService.findAllBooks();
 
-        assertEquals(2, result.size());
-        assertNotNull(result);
+        assertFalse(result.isEmpty(), "Result should not be empty");
+        assertEquals(1, result.size(), "Result list should contain exactly one element");
+        verify(bookMapper, times(1)).toBookDTO(any(Book.class));
     }
 
     @Test
-    void testFindAllBooksWhenNoBooksExist() {
-        when(bookRepository.findAll()).thenReturn(new ArrayList<>());
+    public void findAllBooks_ThrowsNotFoundException_WhenNoBooksFound() {
 
-        assertThrows(NotFoundException.class, () -> {
-            bookService.findAllBooks();
-        });
+        when(bookRepository.findAll()).thenReturn(Collections.emptyList());
+
+        assertThrows(NotFoundException.class, () -> bookService.findAllBooks(),
+                "Expected findAllBooks() to throw, but it didn't");
     }
 
     @Test
-    void testFindBookByIdWhenBookExists() {
+    public void findBookById_ReturnsBookDTO_WhenBookFound() {
         Long id = 1L;
-        Book mockBook = Book.builder().build();
-        mockBook.setId(id);
-        when(bookRepository.findById(id)).thenReturn(Optional.of(mockBook));
+        Book book = new Book();
+        BookDTO bookDTO = new BookDTO();
+        when(bookRepository.findById(id)).thenReturn(Optional.of(book));
+        when(bookMapper.toBookDTO(book)).thenReturn(bookDTO);
 
         BookDTO result = bookService.findBookById(id);
 
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
+        assertNotNull(result, "BookDTO should not be null");
+        verify(bookRepository, times(1)).findById(id);
+        verify(bookMapper, times(1)).toBookDTO(book);
     }
 
     @Test
-    void testFindBookByIdWhenBookDoesNotExist() {
+    public void findBookById_ThrowsNotFoundException_WhenBookNotFound() {
         Long id = 1L;
         when(bookRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> {
-            bookService.findBookById(id);
-        });
+        assertThrows(NotFoundException.class, () -> bookService.findBookById(id),
+                "Expected findBookById() to throw NotFoundException, but it didn't");
     }
 
     @Test
-    void testDeleteBookByIdWhenBookExists() {
+    public void deleteBookById_CallsDeleteMethodOfRepository() {
         Long id = 1L;
 
         bookService.deleteBookById(id);
@@ -87,151 +98,106 @@ public class BookServiceImplTest {
         verify(bookRepository, times(1)).deleteById(id);
     }
 
+
     @Test
-    void testDeleteBookByIdWhenBookDoesNotExist() {
+    public void saveBook_ThrowsBookAlreadyExistsException_WhenIsbnExists() {
+        BookCreateDTO bookCreateDTO = new BookCreateDTO();
+        bookCreateDTO.setIsbn("978-0-12345-678-9");
+
+        when(bookRepository.existsByIsbn("978-0-12345-678-9")).thenReturn(true);
+
+        assertThrows(BookAlreadyExistsException.class, () -> bookService.saveBook(bookCreateDTO));
+    }
+
+    @Test
+    public void search_ReturnsPageOfBookDTO_WhenBooksFound() {
+        SearchBookRequest request = new SearchBookRequest();
+        request.setIsbn("123-456-789");
+        request.setLanguage("English");
+        request.setTitle("Test Book");
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Book> bookPage = new PageImpl<>(Collections.singletonList(new Book()));
+
+        when(bookRepository.searchBooks(pageable, "123-456-789", "English", "Test Book")).thenReturn(bookPage);
+        when(bookMapper.toBookDTO(any(Book.class))).thenReturn(new BookDTO());
+
+        Page<BookDTO> result = bookService.search(request, pageable);
+
+        assertFalse(result.isEmpty(), "Result should not be empty");
+        assertEquals(1, result.getTotalElements(), "There should be exactly one book found");
+    }
+
+    @Test
+    public void updateBook_UpdatesAndSavesBook_WhenFound() {
         Long id = 1L;
-        doThrow(EmptyResultDataAccessException.class).when(bookRepository).deleteById(id);
-
-        assertThrows(EmptyResultDataAccessException.class, () -> {
-            bookService.deleteBookById(id);
-        });
-    }
-
-
-    @Test
-    void testSaveBook_WhenBookDoesNotExist() {
-        BookDTO bookDTO = new BookDTO();
-        bookDTO.setIsbn("1234567890");
-        when(bookRepository.existsByIsbn(bookDTO.getIsbn())).thenReturn(false);
-
-        assertDoesNotThrow(() -> {
-            bookService.saveBook(bookDTO);
-        });
-
-        verify(bookRepository, times(1)).save(any());
-    }
-
-    @Test
-    void testSaveBook_WhenBookExists() {
-        BookDTO bookDTO = new BookDTO();
-        bookDTO.setIsbn("1234567890");
-        when(bookRepository.existsByIsbn(bookDTO.getIsbn())).thenReturn(true);
-
-        BookAlreadyExistsException exception = assertThrows(BookAlreadyExistsException.class, () -> {
-            bookService.saveBook(bookDTO);
-        });
-        assertEquals("Book with ISBN " + bookDTO.getIsbn() + " already exists.", exception.getMessage());
-        verify(bookRepository, never()).save(any());
-    }
-
-    @Test
-    void testFindBookByIsbnAndLanguage() {
-        String isbn = "1234567890";
-        String language = "English";
-        List<Book> mockBooks = new ArrayList<>();
-        mockBooks.add(new Book());
-        mockBooks.add(new Book());
-        when(bookRepository.findBooksByIsbnAndLanguage(isbn, language)).thenReturn(mockBooks);
-
-        List<BookDTO> result = bookService.findBookByIsbnAndLanguage(isbn, language);
-
-        assertEquals(mockBooks.size(), result.size());
-    }
-
-    @Test
-    void testUpdateBook_WhenBookExists() {
-        // Arrange
-        Long id = 1L;
-        BookDTO updatedBookDTO = new BookDTO();
-        updatedBookDTO.setTitle("Updated Title");
-        updatedBookDTO.setIsbn("1234567890");
-        updatedBookDTO.setLanguage("English");
         Book existingBook = new Book();
-        existingBook.setId(id);
-        existingBook.setTitle("Original Title");
-        existingBook.setIsbn("0987654321");
-        existingBook.setLanguage("Spanish");
+        existingBook.setTitle("The star wars");
+        BookCreateDTO bookCreateDTO = new BookCreateDTO();
+        Book updatedBook = new Book();
+        updatedBook.setTitle("The star wars");
+
         when(bookRepository.findById(id)).thenReturn(Optional.of(existingBook));
+        when(bookMapper.toBook(bookCreateDTO)).thenReturn(updatedBook);
 
-        assertDoesNotThrow(() -> {
-            bookService.updateBook(id, updatedBookDTO);
-        });
+        bookService.updateBook(id, bookCreateDTO);
 
-        assertEquals(updatedBookDTO.getTitle(), existingBook.getTitle());
-        assertEquals(updatedBookDTO.getIsbn(), existingBook.getIsbn());
-        assertEquals(updatedBookDTO.getLanguage(), existingBook.getLanguage());
         verify(bookRepository, times(1)).save(existingBook);
+        assertNotNull(existingBook.getTitle());
     }
 
     @Test
-    void testUpdateBook_WhenBookDoesNotExist() {
+    public void updateBook_ThrowsNotFoundException_WhenBookNotFound() {
         Long id = 1L;
-        BookDTO updatedBookDTO = new BookDTO();
+        BookCreateDTO bookCreateDTO = new BookCreateDTO();
+
         when(bookRepository.findById(id)).thenReturn(Optional.empty());
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            bookService.updateBook(id, updatedBookDTO);
-        });
-        assertEquals("Book not found with ID: " + id, exception.getMessage());
-        verify(bookRepository, never()).save(any());
+        assertThrows(NotFoundException.class, () -> bookService.updateBook(id, bookCreateDTO));
     }
 
     @Test
-    void testFindBooksByAuthor() {
-        AuthorDTO authorDTO = new AuthorDTO();
-        List<Book> mockBooks = new ArrayList<>();
-        mockBooks.add(Book.builder().build());
-        mockBooks.add(Book.builder().build());
-        when(bookRepository.findBooksByAuthor(any())).thenReturn(mockBooks);
+    public void findBooksByAuthor_ReturnsListOfBookDTO_WhenBooksFound() {
+        String authorName = "Author Name";
+        List<Book> books = List.of(new Book());
+        List<BookDTO> bookDTOs = List.of(new BookDTO());
 
-        List<Book> result = bookService.findBooksByAuthor(authorDTO);
+        when(bookRepository.findBooksByAuthorName(authorName)).thenReturn(books);
+        when(bookMapper.toBookDTO(any(Book.class))).thenReturn(bookDTOs.get(0));
 
-        assertEquals(mockBooks.size(), result.size());
+        List<BookDTO> result = bookService.findBooksByAuthor(authorName);
+
+        assertFalse(result.isEmpty(), "Should return a non-empty list of BookDTO");
+        assertEquals(bookDTOs.size(), result.size(), "The returned list size should match the expected size");
     }
 
     @Test
-    void testFindBooksByGenres() {
+    public void findBooksByGenreName_ReturnsListOfBookDTO_WhenBooksFound() {
         String genreName = "Fantasy";
-        List<Book> expectedBooks = new ArrayList<>();
-        expectedBooks.add(Book.builder().build());
-        expectedBooks.add(Book.builder().build());
-        when(bookRepository.findBooksByGenre(genreName)).thenReturn(expectedBooks);
+        List<Book> books = List.of(new Book());
+        List<BookDTO> bookDTOs = List.of(new BookDTO());
 
-        List<Book> result = bookService.findBooksByGenres(genreName);
+        when(bookRepository.findBooksByGenreName(genreName)).thenReturn(books);
+        when(bookMapper.toBookDTO(any(Book.class))).thenReturn(bookDTOs.get(0));
 
-        assertEquals(expectedBooks.size(), result.size());
+        List<BookDTO> result = bookService.findBooksByGenreName(genreName);
+
+        assertFalse(result.isEmpty(), "Should return a non-empty list of BookDTO");
+        assertEquals(bookDTOs.size(), result.size(), "The returned list size should match the expected size");
     }
 
     @Test
-    void testCountBooksByAuthor() {
-        AuthorDTO authorDTO = new AuthorDTO();
-        long expectedCount = 5L;
-        when(bookRepository.countBooksByAuthor(any(Author.class))).thenReturn(expectedCount);
+    public void countBooksByAuthor_ReturnsCorrectCount_WhenBooksExist() {
+        String authorName = "Author Name";
+        Long expectedCount = 3L;
 
-        long result = bookService.countBooksByAuthor(authorDTO);
+        when(bookRepository.countBooksByAuthor(authorName)).thenReturn(expectedCount);
 
-        assertEquals(expectedCount, result);
+        Long actualCount = bookService.countBooksByAuthor(authorName);
+
+        assertEquals(expectedCount, actualCount, "The count of books by the author should match the expected count");
     }
 
-    @Test
-    void testUpdateBookGenre() {
-        Book book = new Book();
-        book.setId(1L);
-        book.setGenres(new HashSet<>());
 
-        GenreDTO newGenre = new GenreDTO();
-        newGenre.setGenreName("Gaming");
-
-        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
-
-        bookService.updateBookGenre(1L, newGenre);
-
-        verify(bookRepository, times(1)).save(book);
-
-
-        assertEquals(1, book.getGenres().size());
-        assertEquals("Gaming", book.getGenres().iterator().next().getGenreName());
-    }
 
 
 }

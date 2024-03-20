@@ -1,10 +1,11 @@
 package kz.library.system.services;
 
 import kz.library.system.domains.entities.Book;
-import kz.library.system.domains.entities.Genre;
-import kz.library.system.models.dto.AuthorDTO;
+import kz.library.system.models.dto.BookCreateDTO;
 import kz.library.system.models.dto.BookDTO;
-import kz.library.system.models.dto.GenreDTO;
+import kz.library.system.models.request.SearchBookRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -16,22 +17,17 @@ public interface BookService {
 
     void deleteBookById(Long id);
 
-    void saveBook(BookDTO bookDTO);
+    void saveBook(BookCreateDTO bookCreateDTO);
 
     void saveAllBook(List<BookDTO> bookDTOList);
 
-    List<BookDTO> findBookByIsbnAndLanguage(String isbn, String language);
+    Page<BookDTO> search(SearchBookRequest request, Pageable pageable);
 
-    void updateBook(Long id, BookDTO updatedBookDTO);
+    void updateBook(Long id, BookCreateDTO bookCreateDTO);
 
-    List<Book> findBooksByAuthor(AuthorDTO authorDTO);
+    List<BookDTO> findBooksByAuthor(String authorName);
 
-    List<Book> findBooksByGenres(String genreName);
+    List<BookDTO> findBooksByGenreName(String genreName);
 
-    Long countBooksByAuthor(AuthorDTO authorDTO);
-
-    void updateBookGenre(Long bookId, GenreDTO newGenre);
-
-
-
+    Long countBooksByAuthor(String authorName);
 }

@@ -6,8 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -38,16 +37,33 @@ public class Book {
     @JoinColumn(name = "author_id")
     private Author author;
 
-    @ManyToOne
-    @JoinColumn(name = "publisher_id")
-    private Publisher publisher;
-
-    @ManyToMany(fetch = FetchType.EAGER,
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @ManyToMany(
+            cascade = { CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(name = "books_genres",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id"))
     private Set<Genre> genres = new HashSet<>();
+
+
+    @ManyToMany(
+            cascade = { CascadeType.MERGE, CascadeType.REFRESH})
+    @JoinTable(name = "books_publishers",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "publisher_id"))
+    private List<Publisher> publishers = new ArrayList<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Book book = (Book) o;
+        return Objects.equals(id, book.id) && Objects.equals(title, book.title) && Objects.equals(isbn, book.isbn) && Objects.equals(language, book.language);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, isbn, language);
+    }
 
     @Override
     public String toString() {
@@ -57,7 +73,6 @@ public class Book {
                 ", isbn='" + isbn + '\'' +
                 ", language='" + language + '\'' +
                 ", author=" + author +
-                ", publisher=" + publisher +
                 '}';
     }
 }

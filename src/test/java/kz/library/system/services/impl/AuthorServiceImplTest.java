@@ -2,7 +2,10 @@ package kz.library.system.services.impl;
 
 import kz.library.system.domains.entities.Author;
 import kz.library.system.domains.repositories.AuthorRepository;
+import kz.library.system.models.dto.AuthorCreateDTO;
 import kz.library.system.models.dto.AuthorDTO;
+import kz.library.system.models.mapper.AuthorMapper;
+import kz.library.system.services.AuthorService;
 import kz.library.system.utils.exceptions.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,11 +14,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,56 +27,76 @@ class AuthorServiceImplTest {
     @Mock
     private AuthorRepository authorRepository;
 
+    @Mock
+    private AuthorMapper authorMapper;
+
     @InjectMocks
     private AuthorServiceImpl authorService;
 
-    private List<Author> authors;
-
-    @BeforeEach
-    void setUp() {
-        authors = new ArrayList<>();
-        authors.add(Author.builder().id(1L).name("John Doe").build());
-        authors.add(Author.builder().id(2L).name("Jane Smith").build());
-    }
-
     @Test
-    void testFindAllAuthors() {
+    public void findAllAuthors_ReturnsAuthorList() {
+
+        List<Author> authors = authorList();
+
+        AuthorDTO authorDTO = AuthorDTO.builder().build();
         when(authorRepository.findAll()).thenReturn(authors);
+        when(authorMapper.toAuthorDTO(any(Author.class))).thenReturn(authorDTO);
 
-        List<AuthorDTO> authorDTOs = authorService.findAllAuthors();
+        List<AuthorDTO> result = authorService.findAllAuthors();
 
-        assertEquals(authors.size(), authorDTOs.size());
+        assertFalse(result.isEmpty());
+        assertEquals(2, result.size());
+        verify(authorRepository).findAll();
     }
 
     @Test
-    void testFindAllAuthorsWhenEmpty() {
-        when(authorRepository.findAll()).thenReturn(new ArrayList<>());
+    public void findAllAuthors_ThrowsNotFoundException_WhenNoAuthorsFound() {
+        when(authorRepository.findAll()).thenReturn(Collections.emptyList());
 
         assertThrows(NotFoundException.class, () -> authorService.findAllAuthors());
+
+        verify(authorRepository, times(1)).findAll();
+        verify(authorMapper, never()).toAuthorDTO(any(Author.class));
     }
 
     @Test
-    void testFindAuthorById() {
+    public void findAuthorById_ReturnsAuthorDTO_WhenAuthorFound() {
         Long authorId = 1L;
-        Author author = authors.get(0);
-        when(authorRepository.findById(authorId)).thenReturn(Optional.of(author));
+        Author mockAuthor = Author.builder()
+                .id(authorId)
+                .name("Yerzhan")
+                .build();
+        AuthorDTO mockAuthorDTO = AuthorDTO.builder()
+                .id(authorId)
+                .name("Yerzhan")
+                .build();;
 
-        AuthorDTO authorDTO = authorService.findAuthorById(authorId);
+        when(authorRepository.findById(authorId)).thenReturn(Optional.of(mockAuthor));
+        when(authorMapper.toAuthorDTO(mockAuthor)).thenReturn(mockAuthorDTO);
 
-        assertEquals(1L, authorDTO.getId());
-        assertEquals(author.getName(), authorDTO.getName());
+        AuthorDTO resultDTO = authorService.findAuthorById(authorId);
+
+        assertNotNull(resultDTO);
+        assertEquals(authorId, resultDTO.getId());
+        assertEquals("Yerzhan", resultDTO.getName());
+
+        verify(authorRepository, times(1)).findById(authorId);
+        verify(authorMapper, times(1)).toAuthorDTO(mockAuthor);
     }
 
     @Test
-    void testFindAuthorByIdNotFound() {
-        Long authorId = 99L;
+    public void findAuthorById_ThrowsNotFoundException_WhenAuthorNotFound() {
+        Long authorId = 1L;
         when(authorRepository.findById(authorId)).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> authorService.findAuthorById(authorId));
+
+        verify(authorRepository, times(1)).findById(authorId);
+        verify(authorMapper, never()).toAuthorDTO(any());
     }
 
     @Test
-    void testDeleteAuthorById() {
+    public void deleteAuthorById_CallsDeleteMethodOfRepository() {
         Long authorId = 1L;
 
         authorService.deleteAuthorById(authorId);
@@ -82,33 +105,72 @@ class AuthorServiceImplTest {
     }
 
     @Test
-    void testSaveAuthor() {
-        AuthorDTO authorDTO = AuthorDTO.builder().name("John Doe").build();
+    public void saveAuthor_CallsSaveMethodOfRepositoryWithCorrectAuthor() {
+        // Arrange
+        AuthorCreateDTO authorCreateDTO = new AuthorCreateDTO();
+        authorCreateDTO.setName("Yerzhan");
+        Author mappedAuthor = new Author();
+        mappedAuthor.setName("Yerzhan");
 
-        authorService.saveAuthor(authorDTO);
+        when(authorMapper.toAuthor(authorCreateDTO)).thenReturn(mappedAuthor);
 
-        verify(authorRepository, times(1)).save(any(Author.class));
+        authorService.saveAuthor(authorCreateDTO);
+
+        verify(authorMapper, times(1)).toAuthor(authorCreateDTO);
+        verify(authorRepository, times(1)).save(mappedAuthor);
     }
 
     @Test
-    void testUpdateAuthor() {
+    public void updateAuthor_SuccessfullyUpdatesExistingAuthor() {
         Long authorId = 1L;
-        Author existingAuthor = Author.builder().id(authorId).name("John Doe").build();
-        AuthorDTO updatedAuthorDTO = AuthorDTO.builder().id(authorId).name("Jane Smith").build();
+        Author existingAuthor = Author.builder()
+                .id(authorId)
+                .name("Yerz")
+                .build();
+
+        AuthorCreateDTO authorCreateDTO = AuthorCreateDTO.builder()
+                                         .name("YerzBuzz")
+                                         .build();
+
         when(authorRepository.findById(authorId)).thenReturn(Optional.of(existingAuthor));
 
-        authorService.updateAuthor(authorId, updatedAuthorDTO);
+        authorService.updateAuthor(authorId, authorCreateDTO);
 
+        verify(authorRepository, times(1)).findById(authorId);
         verify(authorRepository, times(1)).save(existingAuthor);
-        assertEquals(updatedAuthorDTO.getName(), existingAuthor.getName());
+        assertEquals("YerzBuzz", existingAuthor.getName(), "Author's name should be updated");
     }
 
     @Test
-    void testUpdateAuthorNotFound() {
-        Long authorId = 99L;
-        AuthorDTO updatedAuthorDTO = AuthorDTO.builder().id(authorId).name("Jane Smith").build();
+    public void updateAuthor_ThrowsNotFoundException_WhenAuthorNotFound() {
+        Long authorId = 1L;
+        AuthorCreateDTO authorCreateDTO =AuthorCreateDTO.builder()
+                .name("Arman")
+                .build();
+
         when(authorRepository.findById(authorId)).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> authorService.updateAuthor(authorId, updatedAuthorDTO));
+        NotFoundException thrown = assertThrows(
+                NotFoundException.class,
+                () -> authorService.updateAuthor(authorId, authorCreateDTO),
+                "Expected updateAuthor() to throw, but it didn't"
+        );
+
+        assertTrue(thrown.getMessage().contains("Author not found with ID: " + authorId), "Exception message should indicate author was not found");
+    }
+
+
+    public List<Author> authorList(){
+        Author author = Author.builder()
+                .id(1L)
+                .name("Yerzhan")
+                .build();
+
+        Author author2 = Author.builder()
+                .id(1L)
+                .name("Yerzhan")
+                .build();
+
+        return List.of(author, author2);
     }
 }

@@ -1,6 +1,7 @@
 package kz.library.system.services;
 
 import kz.library.system.models.dto.GenreDTO;
+import kz.library.system.models.dto.GenreCreateDTO;
 
 import java.util.List;
 
@@ -12,5 +13,7 @@ public interface GenreService {
 
     void deleteGenreById(Long id);
 
-    void saveGenre(GenreDTO genreDTO);
+    void saveGenre(GenreCreateDTO saveGenreDTO);
+
+    void updateGenre(Long courseId, GenreCreateDTO saveGenreDTO);
 }

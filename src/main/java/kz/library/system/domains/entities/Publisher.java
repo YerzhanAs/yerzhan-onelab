@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Getter
@@ -20,6 +21,7 @@ public class Publisher {
     private Long id;
 
     @NotEmpty(message = "The publisher name name is required")
+    @Column(name = "publisher_name")
     private String publisherName;
 
     @Column(name = "publisher_year")
@@ -28,8 +30,18 @@ public class Publisher {
     @Column(name = "address")
     private String address;
 
-    @OneToMany(mappedBy = "publisher")
-    private Set<Book> books = new HashSet<>();
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Publisher publisher = (Publisher) o;
+        return publisherYear == publisher.publisherYear && Objects.equals(id, publisher.id) && Objects.equals(publisherName, publisher.publisherName) && Objects.equals(address, publisher.address);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, publisherName, publisherYear, address);
+    }
 
     @Override
     public String toString() {
@@ -37,7 +49,6 @@ public class Publisher {
                 "id=" + id +
                 ", publisherName='" + publisherName + '\'' +
                 ", publisherYear='" + publisherYear + '\'' +
-                ", books=" + books +
                 '}';
     }
 }

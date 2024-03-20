@@ -1,15 +1,9 @@
-package kz.library.system.kafka.producers;
+package kz.library.system.services.kafka.producers;
 
-import kz.library.system.domains.entities.Book;
 import kz.library.system.models.dto.BookDTO;
-import kz.library.system.models.mapper.AuthorMapper;
-import kz.library.system.models.mapper.PublisherMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +23,7 @@ public class BookProducer {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedRate = 3600000)
     public void sendBooksHourly() {
         List<BookDTO> books = generateBooks();
         kafkaTemplate.send(topicName, books);

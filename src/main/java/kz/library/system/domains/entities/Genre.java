@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.util.Objects;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,4 +31,25 @@ public class Genre {
     @Column(name = "description")
     private String description;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Genre genre = (Genre) o;
+        return Objects.equals(id, genre.id) && Objects.equals(genreName, genre.genreName) && Objects.equals(description, genre.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, genreName, description);
+    }
+
+    @Override
+    public String toString() {
+        return "Genre{" +
+                "id=" + id +
+                ", genreName='" + genreName + '\'' +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

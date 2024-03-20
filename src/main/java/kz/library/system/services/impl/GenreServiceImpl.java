@@ -3,16 +3,16 @@ package kz.library.system.services.impl;
 import kz.library.system.domains.entities.Genre;
 import kz.library.system.domains.repositories.GenreRepository;
 import kz.library.system.models.dto.GenreDTO;
+import kz.library.system.models.dto.GenreCreateDTO;
 import kz.library.system.models.mapper.GenreMapper;
 import kz.library.system.services.GenreService;
+import kz.library.system.utils.exceptions.GenreExistException;
 import kz.library.system.utils.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
-import static kz.library.system.models.mapper.GenreMapper.dtoToEntity;
-import static kz.library.system.models.mapper.GenreMapper.entityToDto;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +20,8 @@ import static kz.library.system.models.mapper.GenreMapper.entityToDto;
 public class GenreServiceImpl implements GenreService {
 
     private final GenreRepository genreRepository;
+
+    private final GenreMapper genreMapper;
 
     @Override
     public List<GenreDTO> findAllGenres(){
@@ -30,14 +32,14 @@ public class GenreServiceImpl implements GenreService {
         }
 
         return genres.stream()
-                .map(GenreMapper::entityToDto)
+                .map(genreMapper::toGenreDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public GenreDTO findGenreById(Long id) {
-        return entityToDto(genreRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Book not found with ID: " + id)));
+        return genreMapper.toGenreDTO(genreRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Genre not found with ID: " + id)));
     }
 
     @Transactional
@@ -48,8 +50,27 @@ public class GenreServiceImpl implements GenreService {
 
     @Transactional
     @Override
-    public void saveGenre(GenreDTO genreDTO){
-        genreRepository.save(dtoToEntity(genreDTO));
+    public void saveGenre(GenreCreateDTO saveGenreDTO){
+
+        if(genreRepository.existsGenreByGenreName(saveGenreDTO.getGenreName()))
+            throw new GenreExistException("This Genre is already exist");
+
+        genreRepository.save(genreMapper.toGenre(saveGenreDTO));
+    }
+
+    @Override
+    @Transactional
+    public void updateGenre(Long genreId, GenreCreateDTO saveGenreDTO) {
+        Genre genre = genreRepository.findById(genreId)
+                .orElseThrow(() -> new NotFoundException("Genre not found with id "+genreId));
+
+        if(genreRepository.existsGenreByGenreName(saveGenreDTO.getGenreName()))
+            throw new GenreExistException("This Genre is already exist");
+
+        genre.setGenreName(saveGenreDTO.getGenreName());
+        genre.setDescription(saveGenreDTO.getDescription());
+
+        genreRepository.save(genre);
     }
 
 }

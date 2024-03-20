@@ -1,6 +1,7 @@
 package kz.library.system.services;
 
 import kz.library.system.models.dto.AuthorDTO;
+import kz.library.system.models.dto.AuthorCreateDTO;
 
 import java.util.List;
 
@@ -12,8 +13,8 @@ public interface AuthorService {
 
     public void deleteAuthorById(Long id);
 
-    public void saveAuthor(AuthorDTO authorDTO);
+    public void saveAuthor(AuthorCreateDTO authorCreateDTO);
 
-    void updateAuthor(Long id, AuthorDTO updatedAuthorDTO);
+    void updateAuthor(Long id, AuthorCreateDTO authorCreateDTO);
 
 }

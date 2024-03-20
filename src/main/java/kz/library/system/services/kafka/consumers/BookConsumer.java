@@ -1,4 +1,4 @@
-package kz.library.system.kafka.consumers;
+package kz.library.system.services.kafka.consumers;
 
 import java.io.IOException;
 import java.util.List;

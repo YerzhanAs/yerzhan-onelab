@@ -2,6 +2,7 @@ package kz.library.system.services.impl;
 
 import kz.library.system.domains.entities.Publisher;
 import kz.library.system.domains.repositories.PublisherRepository;
+import kz.library.system.models.dto.PublisherCreateDTO;
 import kz.library.system.models.dto.PublisherDTO;
 import kz.library.system.models.mapper.PublisherMapper;
 import kz.library.system.services.PublisherService;
@@ -9,12 +10,8 @@ import kz.library.system.utils.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static kz.library.system.models.mapper.PublisherMapper.dtoToEntity;
-import static kz.library.system.models.mapper.PublisherMapper.entityToDto;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +19,8 @@ import static kz.library.system.models.mapper.PublisherMapper.entityToDto;
 public class PublisherServiceImpl implements PublisherService {
 
     private final PublisherRepository publisherRepository;
+
+    private final PublisherMapper publisherMapper;
 
     @Override
     public List<PublisherDTO> findAllPublishers() {
@@ -32,13 +31,13 @@ public class PublisherServiceImpl implements PublisherService {
         }
 
         return publishers.stream()
-                .map(PublisherMapper::entityToDto)
+                .map(publisherMapper::toPublisherDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public PublisherDTO findPublisherById(Long id) {
-        return entityToDto(publisherRepository.findById(id)
+        return publisherMapper.toPublisherDTO(publisherRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Publisher not found with ID: " + id)));
     }
 
@@ -50,8 +49,22 @@ public class PublisherServiceImpl implements PublisherService {
 
     @Transactional
     @Override
-    public void savePublisher(PublisherDTO publisherDTO) {
-        publisherRepository.save(dtoToEntity(publisherDTO));
+    public void savePublisher(PublisherCreateDTO publisherCreateDTO) {
+        publisherRepository.save(publisherMapper.toPublisher(publisherCreateDTO));
     }
+
+    @Override
+    @Transactional
+    public void updatePublisher(Long genreId, PublisherCreateDTO publisherCreateDTO) {
+        Publisher publisher = publisherRepository.findById(genreId)
+                .orElseThrow(() -> new NotFoundException("Publisher not found with id "+genreId));
+
+        publisher.setPublisherName(publisherCreateDTO.getPublisherName());
+        publisher.setPublisherYear(publisherCreateDTO.getPublisherYear());
+        publisher.setAddress(publisherCreateDTO.getAddress());
+
+        publisherRepository.save(publisher);
+    }
+
 
 }

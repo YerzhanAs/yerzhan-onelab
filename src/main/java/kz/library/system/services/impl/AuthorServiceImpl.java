@@ -5,14 +5,13 @@ import java.util.stream.Collectors;
 import kz.library.system.domains.entities.Author;
 import kz.library.system.domains.repositories.AuthorRepository;
 import kz.library.system.models.dto.AuthorDTO;
+import kz.library.system.models.dto.AuthorCreateDTO;
 import kz.library.system.models.mapper.AuthorMapper;
 import kz.library.system.services.AuthorService;
 import kz.library.system.utils.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import static kz.library.system.models.mapper.AuthorMapper.dtoToEntity;
-import static kz.library.system.models.mapper.AuthorMapper.entityToDto;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +19,8 @@ import static kz.library.system.models.mapper.AuthorMapper.entityToDto;
 public class AuthorServiceImpl implements AuthorService {
 
     private final AuthorRepository authorRepository;
+
+    private final AuthorMapper authorMapper;
 
     @Override
     public List<AuthorDTO> findAllAuthors() {
@@ -30,13 +31,13 @@ public class AuthorServiceImpl implements AuthorService {
         }
 
         return authors.stream()
-                .map(AuthorMapper::entityToDto)
+                .map(authorMapper::toAuthorDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public AuthorDTO findAuthorById(Long id) {
-        return entityToDto(authorRepository.findById(id)
+        return authorMapper.toAuthorDTO(authorRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Author not found with ID: " + id)));
     }
 
@@ -48,17 +49,17 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Transactional
     @Override
-    public void saveAuthor(AuthorDTO authorDTO) {
-        authorRepository.save(dtoToEntity(authorDTO));
+    public void saveAuthor(AuthorCreateDTO authorCreateDTO) {
+        authorRepository.save(authorMapper.toAuthor(authorCreateDTO));
     }
 
     @Transactional
     @Override
-    public void updateAuthor(Long id, AuthorDTO updatedAuthorDTO) {
+    public void updateAuthor(Long id, AuthorCreateDTO authorCreateDTO) {
         Author existingAuthor = authorRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Author not found with ID: " + id));
 
-        existingAuthor.setName(updatedAuthorDTO.getName());
+        existingAuthor.setName(authorCreateDTO.getName());
 
         authorRepository.save(existingAuthor);
     }

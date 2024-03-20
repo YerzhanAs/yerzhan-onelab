@@ -1,7 +1,9 @@
 package kz.library.system.utils.handler;
 
 import kz.library.system.models.response.ErrorResponse;
+import kz.library.system.models.response.MessageResponse;
 import kz.library.system.utils.exceptions.BookAlreadyExistsException;
+import kz.library.system.utils.exceptions.GenreExistException;
 import kz.library.system.utils.exceptions.NotFoundException;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpHeaders;
@@ -45,5 +47,10 @@ public class CustomExceptionHandler {
         body.put("message", ex.getMessage());
 
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(GenreExistException.class)
+    public ResponseEntity<MessageResponse> handleEnrollmentException(GenreExistException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new MessageResponse(ex.getMessage()));
     }
 }

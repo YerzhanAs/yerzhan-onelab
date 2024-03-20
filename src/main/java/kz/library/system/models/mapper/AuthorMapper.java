@@ -2,20 +2,15 @@ package kz.library.system.models.mapper;
 
 import kz.library.system.domains.entities.Author;
 import kz.library.system.models.dto.AuthorDTO;
+import kz.library.system.models.dto.AuthorCreateDTO;
+import org.mapstruct.Mapper;
 
-public class AuthorMapper {
+@Mapper(componentModel = "spring")
+public interface AuthorMapper {
 
-    public static AuthorDTO entityToDto(Author author) {
-        return AuthorDTO.builder()
-                .id(author.getId())
-                .name(author.getName())
-                .build();
-    }
+    AuthorDTO toAuthorDTO(Author author);
 
-    public static Author dtoToEntity(AuthorDTO authorDTO) {
-        return Author.builder()
-                .id(authorDTO.getId())
-                .name(authorDTO.getName())
-                .build();
-    }
+    Author toAuthor(AuthorDTO authorDTO);
+
+    Author toAuthor(AuthorCreateDTO authorCreateDTO);
 }

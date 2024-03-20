@@ -1,34 +1,33 @@
 package kz.library.system.services.impl;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import kz.library.system.domains.entities.Author;
 import kz.library.system.domains.entities.Book;
-import kz.library.system.domains.entities.Genre;
 import kz.library.system.domains.repositories.BookRepository;
-import kz.library.system.models.dto.AuthorDTO;
+import kz.library.system.models.dto.BookCreateDTO;
 import kz.library.system.models.dto.BookDTO;
-import kz.library.system.models.dto.GenreDTO;
-import kz.library.system.models.mapper.AuthorMapper;
-import kz.library.system.models.mapper.GenreMapper;
+import kz.library.system.models.mapper.BookMapper;
+import kz.library.system.models.request.SearchBookRequest;
 import kz.library.system.services.BookService;
 import kz.library.system.utils.exceptions.BookAlreadyExistsException;
 import kz.library.system.utils.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import kz.library.system.models.mapper.BookMapper;
 import org.springframework.transaction.annotation.Transactional;
-import static kz.library.system.models.mapper.BookMapper.dtoToEntity;
-import static kz.library.system.models.mapper.BookMapper.entityToDto;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
+
+    private final BookMapper bookMapper;
 
     @Override
     public List<BookDTO> findAllBooks(){
@@ -39,13 +38,13 @@ public class BookServiceImpl implements BookService {
         }
 
         return books.stream()
-                .map(BookMapper::entityToDto)
+                .map(bookMapper::toBookDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public BookDTO findBookById(Long id) {
-        return entityToDto(bookRepository.findById(id)
+        return  bookMapper.toBookDTO(bookRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Book not found with ID: " + id)));
     }
 
@@ -57,74 +56,63 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    public void saveBook(BookDTO bookDTO){
-        if (bookRepository.existsByIsbn(bookDTO.getIsbn())) {
-            throw new BookAlreadyExistsException("Book with ISBN " + bookDTO.getIsbn() + " already exists.");
+    public void saveBook(BookCreateDTO bookCreateDTO){
+        if (bookRepository.existsByIsbn(bookCreateDTO.getIsbn())) {
+            throw new BookAlreadyExistsException("Book with ISBN " + bookCreateDTO.getIsbn() + " already exists.");
         }
-        bookRepository.save(dtoToEntity(bookDTO));
+        bookRepository.save(bookMapper.toBook(bookCreateDTO));
     }
 
     @Override
-    public List<BookDTO> findBookByIsbnAndLanguage(String isbn, String language) {
-        return bookRepository.findBooksByIsbnAndLanguage(isbn, language).stream()
-                .map(BookMapper::entityToDto)
-                .collect(Collectors.toList());
+    public Page<BookDTO> search(SearchBookRequest request, Pageable pageable) {
+        return bookRepository.searchBooks(pageable, request.getIsbn(),
+                        request.getLanguage(), request.getTitle()).map(bookMapper::toBookDTO);
     }
     @Transactional
     @Override
-    public void updateBook(Long id, BookDTO updatedBookDTO) {
+    public void updateBook(Long id, BookCreateDTO bookCreateDTO) {
         Book existingBook = bookRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Book not found with ID: " + id));
 
-        existingBook.setTitle(updatedBookDTO.getTitle());
-        existingBook.setIsbn(updatedBookDTO.getIsbn());
-        existingBook.setLanguage(updatedBookDTO.getLanguage());
-        existingBook.setGenres(updatedBookDTO.getGenres());
-        existingBook.setAuthor(updatedBookDTO.getAuthor());
-        existingBook.setPublisher(updatedBookDTO.getPublisher());
+        Book book = bookMapper.toBook(bookCreateDTO);
+
+        existingBook.setTitle(book.getTitle());
+        existingBook.setIsbn(book.getIsbn());
+        existingBook.setLanguage(book.getLanguage());
+        existingBook.setGenres(book.getGenres());
+        existingBook.setAuthor(book.getAuthor());
+        existingBook.setPublishers(book.getPublishers());
 
         bookRepository.save(existingBook);
     }
 
     @Override
-    public List<Book> findBooksByAuthor(AuthorDTO authorDTO) {
-        Author author = AuthorMapper.dtoToEntity(authorDTO);
-        return bookRepository.findBooksByAuthor(author);
+    public List<BookDTO> findBooksByAuthor(String authorName) {
+        return bookRepository.findBooksByAuthorName(authorName).stream()
+                .map(bookMapper::toBookDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Book> findBooksByGenres(String genreName) {
-        return bookRepository.findBooksByGenre(genreName);
+    public List<BookDTO> findBooksByGenreName(String genreName) {
+        return bookRepository.findBooksByGenreName(genreName).stream()
+                .map(bookMapper::toBookDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Long countBooksByAuthor(AuthorDTO authorDTO){
-        Author author = AuthorMapper.dtoToEntity(authorDTO);
-        return bookRepository.countBooksByAuthor(author);
-    }
-
-    @Transactional
-    public void updateBookGenre(Long bookId, GenreDTO newGenre) {
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new NotFoundException("Book not found with ID: " + bookId));
-
-        book.getGenres().clear();
-
-        Genre genre = GenreMapper.dtoToEntity(newGenre);
-        book.getGenres().add(genre);
-
-        bookRepository.save(book);
+    public Long countBooksByAuthor(String authorName){
+        return bookRepository.countBooksByAuthor(authorName);
     }
 
     @Transactional
     @Override
     public void saveAllBook(List<BookDTO> bookDTOList){
         List<Book> books = bookDTOList.stream()
-                .map(BookMapper::dtoToEntity)
+                .map(bookMapper::toBook)
                 .collect(Collectors.toList());
 
         bookRepository.saveAll(books);
     }
-
 
 }

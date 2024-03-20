@@ -1,21 +1,20 @@
 package kz.library.system.models.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PublisherDTO {
+public class PublisherCreateDTO {
 
-    private Long id;
-
+    @NotBlank(message = "The publisher name is required")
     private String publisherName;
 
     private int publisherYear;
 
+    @NotBlank
     private String address;
-
 }
