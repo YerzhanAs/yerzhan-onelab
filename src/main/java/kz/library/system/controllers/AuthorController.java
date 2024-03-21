@@ -1,6 +1,7 @@
 package kz.library.system.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kz.library.system.models.dto.AuthorCreateDTO;
@@ -16,6 +17,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/author")
+@SecurityRequirement(name = "bearerAuth")
 @Tag(name = "authors", description = "Authors Management APIs")
 public class AuthorController {
 

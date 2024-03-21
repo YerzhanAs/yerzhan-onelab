@@ -1,6 +1,7 @@
 package kz.library.system.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kz.library.system.models.dto.PublisherCreateDTO;
@@ -16,6 +17,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/publisher")
+@SecurityRequirement(name = "bearerAuth")
 @Tag(name = "publishers", description = "Publishers Management APIs")
 public class PublisherController {
 
