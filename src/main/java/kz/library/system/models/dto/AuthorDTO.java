@@ -1,6 +1,5 @@
 package kz.library.system.models.dto;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import java.util.Set;
 

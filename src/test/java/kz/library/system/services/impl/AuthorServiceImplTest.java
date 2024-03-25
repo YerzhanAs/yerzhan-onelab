@@ -34,7 +34,7 @@ class AuthorServiceImplTest {
     private AuthorServiceImpl authorService;
 
     @Test
-    public void findAllAuthors_ReturnsAuthorList() {
+    void findAllAuthors_ReturnsAuthorList() {
 
         List<Author> authors = authorList();
 
@@ -50,7 +50,7 @@ class AuthorServiceImplTest {
     }
 
     @Test
-    public void findAllAuthors_ThrowsNotFoundException_WhenNoAuthorsFound() {
+    void findAllAuthors_ThrowsNotFoundException_WhenNoAuthorsFound() {
         when(authorRepository.findAll()).thenReturn(Collections.emptyList());
 
         assertThrows(NotFoundException.class, () -> authorService.findAllAuthors());
@@ -60,7 +60,7 @@ class AuthorServiceImplTest {
     }
 
     @Test
-    public void findAuthorById_ReturnsAuthorDTO_WhenAuthorFound() {
+    void findAuthorById_ReturnsAuthorDTO_WhenAuthorFound() {
         Long authorId = 1L;
         Author mockAuthor = Author.builder()
                 .id(authorId)
@@ -85,7 +85,7 @@ class AuthorServiceImplTest {
     }
 
     @Test
-    public void findAuthorById_ThrowsNotFoundException_WhenAuthorNotFound() {
+    void findAuthorById_ThrowsNotFoundException_WhenAuthorNotFound() {
         Long authorId = 1L;
         when(authorRepository.findById(authorId)).thenReturn(Optional.empty());
 
@@ -96,7 +96,7 @@ class AuthorServiceImplTest {
     }
 
     @Test
-    public void deleteAuthorById_CallsDeleteMethodOfRepository() {
+    void deleteAuthorById_CallsDeleteMethodOfRepository() {
         Long authorId = 1L;
 
         authorService.deleteAuthorById(authorId);
@@ -105,7 +105,7 @@ class AuthorServiceImplTest {
     }
 
     @Test
-    public void saveAuthor_CallsSaveMethodOfRepositoryWithCorrectAuthor() {
+    void saveAuthor_CallsSaveMethodOfRepositoryWithCorrectAuthor() {
         // Arrange
         AuthorCreateDTO authorCreateDTO = new AuthorCreateDTO();
         authorCreateDTO.setName("Yerzhan");
@@ -121,7 +121,7 @@ class AuthorServiceImplTest {
     }
 
     @Test
-    public void updateAuthor_SuccessfullyUpdatesExistingAuthor() {
+    void updateAuthor_SuccessfullyUpdatesExistingAuthor() {
         Long authorId = 1L;
         Author existingAuthor = Author.builder()
                 .id(authorId)
@@ -142,7 +142,7 @@ class AuthorServiceImplTest {
     }
 
     @Test
-    public void updateAuthor_ThrowsNotFoundException_WhenAuthorNotFound() {
+     void updateAuthor_ThrowsNotFoundException_WhenAuthorNotFound() {
         Long authorId = 1L;
         AuthorCreateDTO authorCreateDTO =AuthorCreateDTO.builder()
                 .name("Arman")

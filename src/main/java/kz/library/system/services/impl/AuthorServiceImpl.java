@@ -1,17 +1,17 @@
 package kz.library.system.services.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import kz.library.system.domains.entities.Author;
 import kz.library.system.domains.repositories.AuthorRepository;
-import kz.library.system.models.dto.AuthorDTO;
 import kz.library.system.models.dto.AuthorCreateDTO;
+import kz.library.system.models.dto.AuthorDTO;
 import kz.library.system.models.mapper.AuthorMapper;
 import kz.library.system.services.AuthorService;
 import kz.library.system.utils.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +32,7 @@ public class AuthorServiceImpl implements AuthorService {
 
         return authors.stream()
                 .map(authorMapper::toAuthorDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
