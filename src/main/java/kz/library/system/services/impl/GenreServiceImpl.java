@@ -2,8 +2,8 @@ package kz.library.system.services.impl;
 
 import kz.library.system.domains.entities.Genre;
 import kz.library.system.domains.repositories.GenreRepository;
-import kz.library.system.models.dto.GenreDTO;
 import kz.library.system.models.dto.GenreCreateDTO;
+import kz.library.system.models.dto.GenreDTO;
 import kz.library.system.models.mapper.GenreMapper;
 import kz.library.system.services.GenreService;
 import kz.library.system.utils.exceptions.GenreExistException;
@@ -11,8 +11,8 @@ import kz.library.system.utils.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +33,7 @@ public class GenreServiceImpl implements GenreService {
 
         return genres.stream()
                 .map(genreMapper::toGenreDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

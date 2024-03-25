@@ -13,7 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +34,7 @@ class GenreServiceImplTest {
     private GenreServiceImpl genreService;
 
     @Test
-    public void findAllGenres_ReturnsNonEmptyList_WhenGenresFound() {
+    void findAllGenres_ReturnsNonEmptyList_WhenGenresFound() {
         Genre genre = new Genre();
         List<Genre> genres = List.of(genre);
 
@@ -51,7 +50,7 @@ class GenreServiceImplTest {
     }
 
     @Test
-    public void findAllGenres_ThrowsNotFoundException_WhenNoGenresFound() {
+    void findAllGenres_ThrowsNotFoundException_WhenNoGenresFound() {
         when(genreRepository.findAll()).thenReturn(Collections.emptyList());
 
         NotFoundException thrown = assertThrows(
@@ -65,7 +64,7 @@ class GenreServiceImplTest {
 
 
     @Test
-    public void findGenreById_ReturnsGenreDTO_WhenGenreFound() {
+    void findGenreById_ReturnsGenreDTO_WhenGenreFound() {
         Long genreId = 1L;
         Genre mockGenre = new Genre();
         GenreDTO mockGenreDTO = GenreDTO.builder()
@@ -87,7 +86,7 @@ class GenreServiceImplTest {
     }
 
     @Test
-    public void findGenreById_ThrowsNotFoundException_WhenGenreNotFound() {
+    void findGenreById_ThrowsNotFoundException_WhenGenreNotFound() {
         Long genreId = 1L;
         when(genreRepository.findById(genreId)).thenReturn(Optional.empty());
 
@@ -99,7 +98,7 @@ class GenreServiceImplTest {
     }
 
     @Test
-    public void deleteGenreById_CallsDeleteMethodOfRepository() {
+    void deleteGenreById_CallsDeleteMethodOfRepository() {
         Long genreId = 1L;
 
         genreService.deleteGenreById(genreId);
@@ -108,7 +107,7 @@ class GenreServiceImplTest {
     }
 
     @Test
-    public void saveGenre_ThrowsGenreExistException_WhenGenreAlreadyExists() {
+    void saveGenre_ThrowsGenreExistException_WhenGenreAlreadyExists() {
         GenreCreateDTO saveGenreDTO = GenreCreateDTO.builder()
                                     .genreName("Fantasy")
                                     .build();
@@ -121,7 +120,7 @@ class GenreServiceImplTest {
     }
 
     @Test
-    public void saveGenre_SavesGenre_WhenNewGenre() {
+    void saveGenre_SavesGenre_WhenNewGenre() {
         GenreCreateDTO saveGenreDTO = new GenreCreateDTO();
         saveGenreDTO.setGenreName("Fantasy");
         Genre genre = new Genre();
@@ -135,7 +134,7 @@ class GenreServiceImplTest {
     }
 
     @Test
-    public void updateGenre_SuccessfullyUpdatesExistingGenre() {
+    void updateGenre_SuccessfullyUpdatesExistingGenre() {
         Long genreId = 1L;
         Genre existingGenre = Genre.builder()
                 .id(genreId)
@@ -158,7 +157,7 @@ class GenreServiceImplTest {
     }
 
     @Test
-    public void updateGenre_ThrowsGenreExistException_WhenGenreNameAlreadyExists() {
+    void updateGenre_ThrowsGenreExistException_WhenGenreNameAlreadyExists() {
         Long genreId = 1L;
         Genre existingGenre = Genre.builder()
                 .id(genreId)

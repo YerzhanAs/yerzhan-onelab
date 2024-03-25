@@ -1,7 +1,5 @@
 package kz.library.system.models.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import kz.library.system.domains.entities.Publisher;
 import lombok.*;
 
 import java.util.List;

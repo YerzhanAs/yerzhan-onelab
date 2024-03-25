@@ -3,9 +3,7 @@ package kz.library.system.domains.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 @Getter
 @Setter

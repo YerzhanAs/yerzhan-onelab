@@ -38,13 +38,13 @@ public class BookProducer {
     private List<BookDTO> generateBooks() {
         BookDTO book1 = BookDTO.builder()
                 .title("The best practice of Java")
-                .isbn("452-0-306-12215-7")
+                .isbn("978-3-16-148410-0")
                 .language("English")
                 .build();
 
         BookDTO book2 = BookDTO.builder()
                 .title("Creating minecraft with java")
-                .isbn("352-0-442-14415-7")
+                .isbn("978-3-14-158410-0")
                 .language("English")
                 .build();
         return Arrays.asList(book1, book2);

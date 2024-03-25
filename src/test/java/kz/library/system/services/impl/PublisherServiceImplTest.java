@@ -12,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class PublisherServiceImplTest {
+class PublisherServiceImplTest {
     @Mock
     private PublisherRepository publisherRepository;
 
@@ -32,7 +31,7 @@ public class PublisherServiceImplTest {
     private PublisherServiceImpl publisherService;
 
     @Test
-    public void findAllPublishers_ReturnsNonEmptyList_WhenPublishersFound() {
+    void findAllPublishers_ReturnsNonEmptyList_WhenPublishersFound() {
         Publisher publisher = new Publisher();
         List<Publisher> publishers = List.of(publisher);
 
@@ -48,7 +47,7 @@ public class PublisherServiceImplTest {
     }
 
     @Test
-    public void findAllPublishers_ThrowsNotFoundException_WhenNoPublishersFound() {
+    void findAllPublishers_ThrowsNotFoundException_WhenNoPublishersFound() {
         when(publisherRepository.findAll()).thenReturn(Collections.emptyList());
 
         assertThrows(NotFoundException.class, () -> publisherService.findAllPublishers(),
@@ -59,7 +58,7 @@ public class PublisherServiceImplTest {
     }
 
     @Test
-    public void findPublisherById_ReturnsPublisherDTO_WhenPublisherFound() {
+    void findPublisherById_ReturnsPublisherDTO_WhenPublisherFound() {
         Long id = 1L;
         Publisher publisher = new Publisher();
         PublisherDTO publisherDTO = new PublisherDTO();
@@ -75,7 +74,7 @@ public class PublisherServiceImplTest {
     }
 
     @Test
-    public void findPublisherById_ThrowsNotFoundException_WhenPublisherNotFound() {
+    void findPublisherById_ThrowsNotFoundException_WhenPublisherNotFound() {
         Long id = 1L;
         when(publisherRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -84,7 +83,7 @@ public class PublisherServiceImplTest {
     }
 
     @Test
-    public void deletePublisherById_CallsDeleteMethodOfRepository() {
+    void deletePublisherById_CallsDeleteMethodOfRepository() {
         Long id = 1L;
 
         publisherService.deletePublisherById(id);
@@ -93,7 +92,7 @@ public class PublisherServiceImplTest {
     }
 
     @Test
-    public void savePublisher_CallsSaveMethodOfRepositoryWithCorrectPublisher() {
+    void savePublisher_CallsSaveMethodOfRepositoryWithCorrectPublisher() {
         PublisherCreateDTO publisherCreateDTO = new PublisherCreateDTO();
         when(publisherMapper.toPublisher(publisherCreateDTO)).thenReturn(new Publisher());
 
@@ -104,7 +103,7 @@ public class PublisherServiceImplTest {
     }
 
     @Test
-    public void updatePublisher_UpdatesExistingPublisher_WhenPublisherFound() {
+    void updatePublisher_UpdatesExistingPublisher_WhenPublisherFound() {
         Long publisherId = 1L;
         Publisher existingPublisher = new Publisher();
         PublisherCreateDTO publisherCreateDTO = new PublisherCreateDTO();
@@ -120,7 +119,7 @@ public class PublisherServiceImplTest {
     }
 
     @Test
-    public void updatePublisher_ThrowsNotFoundException_WhenPublisherNotFound() {
+    void updatePublisher_ThrowsNotFoundException_WhenPublisherNotFound() {
         Long publisherId = 1L;
         when(publisherRepository.findById(publisherId)).thenReturn(Optional.empty());
 

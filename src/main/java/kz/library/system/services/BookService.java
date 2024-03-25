@@ -1,6 +1,5 @@
 package kz.library.system.services;
 
-import kz.library.system.domains.entities.Book;
 import kz.library.system.models.dto.BookCreateDTO;
 import kz.library.system.models.dto.BookDTO;
 import kz.library.system.models.request.SearchBookRequest;

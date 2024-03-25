@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-// TODO: ADD FLYWAY
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
 

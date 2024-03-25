@@ -26,7 +26,7 @@ public class Book {
             message = "The length of genre name must be between 1 and 50 characters")
     private String title;
 
-    @Pattern(regexp = "^\\d{3}-\\d{1}-\\d{3}-\\d{5}-\\d{1}$",
+    @Pattern(regexp = "^(978|979)-\\d{1,5}-\\d{1,7}-\\d{1,7}-\\d$",
             message = "The ISBN must match the ISBN-13 format")
     private String isbn;
 

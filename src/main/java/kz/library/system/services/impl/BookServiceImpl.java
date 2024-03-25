@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +38,7 @@ public class BookServiceImpl implements BookService {
 
         return books.stream()
                 .map(bookMapper::toBookDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -90,14 +89,14 @@ public class BookServiceImpl implements BookService {
     public List<BookDTO> findBooksByAuthor(String authorName) {
         return bookRepository.findBooksByAuthorName(authorName).stream()
                 .map(bookMapper::toBookDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public List<BookDTO> findBooksByGenreName(String genreName) {
         return bookRepository.findBooksByGenreName(genreName).stream()
                 .map(bookMapper::toBookDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -110,7 +109,7 @@ public class BookServiceImpl implements BookService {
     public void saveAllBook(List<BookDTO> bookDTOList){
         List<Book> books = bookDTOList.stream()
                 .map(bookMapper::toBook)
-                .collect(Collectors.toList());
+                .toList();
 
         bookRepository.saveAll(books);
     }

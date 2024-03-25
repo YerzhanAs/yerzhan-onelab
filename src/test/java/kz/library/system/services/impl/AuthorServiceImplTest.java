@@ -5,15 +5,13 @@ import kz.library.system.domains.repositories.AuthorRepository;
 import kz.library.system.models.dto.AuthorCreateDTO;
 import kz.library.system.models.dto.AuthorDTO;
 import kz.library.system.models.mapper.AuthorMapper;
-import kz.library.system.services.AuthorService;
 import kz.library.system.utils.exceptions.NotFoundException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import java.util.ArrayList;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;

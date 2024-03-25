@@ -4,7 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import kz.library.system.security.service.JwtService;
+import kz.library.system.security.service.JwtUtils;
 import kz.library.system.security.service.TokenBlacklistService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtService jwtService;
+    private final JwtUtils jwtUtils;
     private final UserDetailsService userDetailsService;
     private final TokenBlacklistService tokenBlacklistService;
 
@@ -42,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         jwt = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(jwt);
+        userEmail = jwtUtils.extractUsername(jwt);
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null){
 
@@ -53,7 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-            if(jwtService.isTokenValid(jwt, userDetails)){
+            if(jwtUtils.isTokenValid(jwt, userDetails)){
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,

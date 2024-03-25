@@ -1,14 +1,9 @@
 package kz.library.system.models.dto;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-
-import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -22,7 +17,7 @@ public class BookCreateDTO {
             message = "The length of genre name must be between 1 and 50 characters")
     private String title;
 
-    @Pattern(regexp = "^\\d{3}-\\d{1}-\\d{3}-\\d{5}-\\d{1}$",
+    @Pattern(regexp = "^(978|979)-\\d{1,5}-\\d{1,7}-\\d{1,7}-\\d$",
             message = "The ISBN must match the ISBN-13 format")
     private String isbn;
 

@@ -1,15 +1,10 @@
 package kz.library.system.services.impl;
 
 
-import java.util.*;
-
-import kz.library.system.domains.entities.Author;
 import kz.library.system.domains.entities.Book;
 import kz.library.system.domains.repositories.BookRepository;
-import kz.library.system.models.dto.AuthorDTO;
 import kz.library.system.models.dto.BookCreateDTO;
 import kz.library.system.models.dto.BookDTO;
-import kz.library.system.models.dto.GenreDTO;
 import kz.library.system.models.mapper.BookMapper;
 import kz.library.system.models.request.SearchBookRequest;
 import kz.library.system.utils.exceptions.BookAlreadyExistsException;
@@ -19,17 +14,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class BookServiceImplTest {
+class BookServiceImplTest {
 
     @Mock
     private BookRepository bookRepository;
@@ -41,7 +39,7 @@ public class BookServiceImplTest {
     private BookServiceImpl bookService;
 
     @Test
-    public void findAllBooks_ReturnsNonEmptyList_WhenBooksFound() {
+    void findAllBooks_ReturnsNonEmptyList_WhenBooksFound() {
         Book book = new Book();
         List<Book> books = List.of(book);
 
@@ -57,7 +55,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    public void findAllBooks_ThrowsNotFoundException_WhenNoBooksFound() {
+    void findAllBooks_ThrowsNotFoundException_WhenNoBooksFound() {
 
         when(bookRepository.findAll()).thenReturn(Collections.emptyList());
 
@@ -66,7 +64,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    public void findBookById_ReturnsBookDTO_WhenBookFound() {
+    void findBookById_ReturnsBookDTO_WhenBookFound() {
         Long id = 1L;
         Book book = new Book();
         BookDTO bookDTO = new BookDTO();
@@ -81,7 +79,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    public void findBookById_ThrowsNotFoundException_WhenBookNotFound() {
+    void findBookById_ThrowsNotFoundException_WhenBookNotFound() {
         Long id = 1L;
         when(bookRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -90,7 +88,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    public void deleteBookById_CallsDeleteMethodOfRepository() {
+    void deleteBookById_CallsDeleteMethodOfRepository() {
         Long id = 1L;
 
         bookService.deleteBookById(id);
@@ -100,7 +98,7 @@ public class BookServiceImplTest {
 
 
     @Test
-    public void saveBook_ThrowsBookAlreadyExistsException_WhenIsbnExists() {
+    void saveBook_ThrowsBookAlreadyExistsException_WhenIsbnExists() {
         BookCreateDTO bookCreateDTO = new BookCreateDTO();
         bookCreateDTO.setIsbn("978-0-12345-678-9");
 
@@ -110,7 +108,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    public void search_ReturnsPageOfBookDTO_WhenBooksFound() {
+    void search_ReturnsPageOfBookDTO_WhenBooksFound() {
         SearchBookRequest request = new SearchBookRequest();
         request.setIsbn("123-456-789");
         request.setLanguage("English");
@@ -128,7 +126,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    public void updateBook_UpdatesAndSavesBook_WhenFound() {
+    void updateBook_UpdatesAndSavesBook_WhenFound() {
         Long id = 1L;
         Book existingBook = new Book();
         existingBook.setTitle("The star wars");
@@ -146,7 +144,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    public void updateBook_ThrowsNotFoundException_WhenBookNotFound() {
+    void updateBook_ThrowsNotFoundException_WhenBookNotFound() {
         Long id = 1L;
         BookCreateDTO bookCreateDTO = new BookCreateDTO();
 
@@ -156,7 +154,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    public void findBooksByAuthor_ReturnsListOfBookDTO_WhenBooksFound() {
+    void findBooksByAuthor_ReturnsListOfBookDTO_WhenBooksFound() {
         String authorName = "Author Name";
         List<Book> books = List.of(new Book());
         List<BookDTO> bookDTOs = List.of(new BookDTO());
@@ -171,7 +169,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    public void findBooksByGenreName_ReturnsListOfBookDTO_WhenBooksFound() {
+    void findBooksByGenreName_ReturnsListOfBookDTO_WhenBooksFound() {
         String genreName = "Fantasy";
         List<Book> books = List.of(new Book());
         List<BookDTO> bookDTOs = List.of(new BookDTO());
@@ -186,7 +184,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    public void countBooksByAuthor_ReturnsCorrectCount_WhenBooksExist() {
+    void countBooksByAuthor_ReturnsCorrectCount_WhenBooksExist() {
         String authorName = "Author Name";
         Long expectedCount = 3L;
 
@@ -196,8 +194,4 @@ public class BookServiceImplTest {
 
         assertEquals(expectedCount, actualCount, "The count of books by the author should match the expected count");
     }
-
-
-
-
 }

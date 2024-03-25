@@ -7,6 +7,7 @@ import kz.library.system.domains.repositories.UserRepository;
 import kz.library.system.models.request.AuthenticationRequest;
 import kz.library.system.models.request.RegisterRequest;
 import kz.library.system.models.response.AuthenticationResponse;
+import kz.library.system.utils.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,7 +21,7 @@ public class AuthService {
 
     private final PasswordEncoder passwordEncoder;
 
-    private final JwtService jwtService;
+    private final JwtUtils jwtUtils;
 
     private final AuthenticationManager authenticationManager;
 
@@ -34,7 +35,7 @@ public class AuthService {
                 .role(Role.USER)
                 .build();
 
-        String jwtToken = jwtService.generateToken(user);
+        String jwtToken = jwtUtils.generateToken(user);
         repository.save(user);
 
         return AuthenticationResponse.builder()
@@ -50,8 +51,9 @@ public class AuthService {
                 )
         );
 
-        User user = repository.findByUsername(request.getUsername()).orElseThrow();
-        String jwtToken = jwtService.generateToken(user);
+        User user = repository.findByUsername(request.getUsername()).orElseThrow(() ->
+                new NotFoundException("User not found with username "+request.getUsername()));
+        String jwtToken = jwtUtils.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
